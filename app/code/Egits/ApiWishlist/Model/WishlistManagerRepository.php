@@ -2,18 +2,18 @@
 
 namespace Egits\ApiWishlist\Model;
 
-use Egits\ApiWishlist\Api\Data\WishlistManagerInterface;
+use Egits\ApiWishlist\Api\WishlistManagerInterface;
 
 class WishlistManagerRepository implements WishlistManagerInterface
 {
-
     /**
-     * This function returns the list of wishlist items
+     * Get customer token by customer ID.
      *
-     * @var array
+     * @param int $customerId
+     * @return int
      */
-    public function getList()
+    public function getToken($customerId)
     {
-        return "working...";
+        return $customerId;
     }
 }
