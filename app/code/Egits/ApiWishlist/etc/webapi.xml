@@ -3,10 +3,20 @@
 	<route url="/V1/customer/resettoken/" method="GET">
 		<service class="Egits\ApiWishlist\Api\WishlistManagerInterface" method="getWishlistItems" />
 		<resources>
-			<resource ref="self"/>
+			<resource ref="self" />
 		</resources>
 		<data>
-			<parameter name="customerId" force="true">%customer_id%</parameter>
+			<parameter name="customerId" force="true">
+				%customer_id%
+			</parameter>
+		</data>
+	</route>
+	<route url="/V1/customer/addProduct" method="POST">
+		<service class="Egits\ApiWishlist\Api\WishlistManagerInterface" method="addProductToWishlist" />
+		<resources>
+			<resource ref="self" />
+		</resources>
+		<data><parameter name="customerId" force="true">%customer_id%</parameter>
 		</data>
 	</route>
 </routes>
