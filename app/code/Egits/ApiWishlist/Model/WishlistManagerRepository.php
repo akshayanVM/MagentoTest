@@ -4,6 +4,7 @@ namespace Egits\ApiWishlist\Model;
 
 use Egits\ApiWishlist\Api\WishlistManagerInterface;
 use Magento\Wishlist\Model\Wishlist as WishlistFactory;
+use Magento\Wishlist\Model\ResourceModel\Wishlist as WishlistResource;
 use Magento\Catalog\Model\ProductRepository;
 
 
@@ -19,18 +20,25 @@ class WishlistManagerRepository implements WishlistManagerInterface
      * @var ProductRepository
      */
     private $productRepository;
+    /**
+     * @var WishlistResource
+     */
+    private $wishlistResource;
 
     /**
      * @param WishlistFactory $wishlist
+     * @param ProductRepository $productRepository
+     * @param WishlistResource $wishlistResource
      */
     public function __construct(
         ProductRepository $productRepository,
+        WishlistResource $wishlistResource,
         WishlistFactory $wishlist
     ) {
         $this->wishlist = $wishlist;
         $this->productRepository = $productRepository;
+        $this->wishlistResource = $wishlistResource;
     }
-
 
     /**
      * Get customer token by customer ID.
@@ -68,11 +76,12 @@ class WishlistManagerRepository implements WishlistManagerInterface
         try {
             $product = $this->productRepository->getById($productId);
             $wishlistProduct = $customerWishlist->addNewItem($product);
-
+            $productName = $product->getName();
             // Save the wishlist
-            $customerWishlist->save();
+            // $customerWishlist->save();
+            $this->wishlistResource->save($customerWishlist);
 
-            return $wishlistProduct->getId();
+            return $productName . " has been added to wishlist";
         } catch (\Exception $e) {
             // Handle exception, e.g., if the product ID is invalid
             return null;
