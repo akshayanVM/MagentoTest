@@ -6,7 +6,7 @@ namespace Egits\ApiWishlist\Api;
 interface WishlistManagerInterface
 {
     /**
-     * Undocumented function
+     * Get wishlist items from customer id
      *
      * @param int $customerId
      * @return array
@@ -14,7 +14,7 @@ interface WishlistManagerInterface
     public function getWishlistItems($customerId);
 
     /**
-     * Undocumented function
+     * Add a new product to wishlist
      *
      * @param int $customerId
      * @param mixed $productId

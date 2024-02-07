@@ -41,7 +41,7 @@ class WishlistManagerRepository implements WishlistManagerInterface
     }
 
     /**
-     * Get customer token by customer ID.
+     * Get wishlist items list by customer ID.
      *
      * @param int $customerId
      * @return array
