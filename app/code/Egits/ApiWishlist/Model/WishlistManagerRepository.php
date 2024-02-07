@@ -73,10 +73,20 @@ class WishlistManagerRepository implements WishlistManagerInterface
         $productId = (int)$productId;
         $customerWishlist = $this->getWishlistFromCustomerId($customerId);
 
+
+
         try {
             $product = $this->productRepository->getById($productId);
             $wishlistProduct = $customerWishlist->addNewItem($product);
             $productName = $product->getName();
+
+            $wishlistItems = $customerWishlist->getItemCollection();
+            foreach ($wishlistItems as $wishlistItem) {
+                if ($wishlistItem->getProductId() == $productId) {
+                    return  $productName . " already in your wishlist";
+                }
+            }
+
             // Save the wishlist
             // $customerWishlist->save();
             $this->wishlistResource->save($customerWishlist);
