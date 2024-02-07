@@ -32,7 +32,7 @@ class WishlistManagerRepository implements WishlistManagerInterface
     public function getWishlistItems($customerId)
     {
         // Load the wishlist based on the customer ID
-        $customerWishlist = $this->wishlist->loadByCustomerId($customerId, true); // If signed in
+        $customerWishlist = $this->getWishlistFromCustomerId($customerId);
 
         // Get the item collection from the wishlist
         $wishlistItems = $customerWishlist->getItemCollection()->getData();
@@ -41,5 +41,10 @@ class WishlistManagerRepository implements WishlistManagerInterface
         $wishlistData = [];
 
         return $wishlistItems;
+    }
+
+    public function getWishlistFromCustomerId($customerId)
+    {
+        return $this->wishlist->loadByCustomerId($customerId, true); // If signed in
     }
 }
