@@ -3,17 +3,43 @@
 namespace Egits\ApiWishlist\Model;
 
 use Egits\ApiWishlist\Api\WishlistManagerInterface;
+use Magento\Wishlist\Model\Wishlist as WishlistFactory;
 
 class WishlistManagerRepository implements WishlistManagerInterface
 {
+
+    /**
+     * @var WishlistFactory
+     */
+    private $wishlist;
+
+    /**
+     * @param WishlistFactory $wishlist
+     */
+    public function __construct(
+        WishlistFactory $wishlist
+    ) {
+        $this->wishlist = $wishlist;
+    }
+
+
     /**
      * Get customer token by customer ID.
      *
      * @param int $customerId
-     * @return int
+     * @return array
      */
-    public function getToken($customerId)
+    public function getWishlistItems($customerId)
     {
-        return $customerId;
+        // Load the wishlist based on the customer ID
+        $customerWishlist = $this->wishlist->loadByCustomerId($customerId, true); // If signed in
+
+        // Get the item collection from the wishlist
+        $wishlistItems = $customerWishlist->getItemCollection()->getData();
+
+        // Initialize an array to store wishlist item data
+        $wishlistData = [];
+
+        return $wishlistItems;
     }
 }

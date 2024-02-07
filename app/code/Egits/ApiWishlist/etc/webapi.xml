@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Webapi/etc/webapi.xsd">
 	<route url="/V1/customer/resettoken/" method="GET">
-		<service class="Egits\ApiWishlist\Api\WishlistManagerInterface" method="getToken" />
+		<service class="Egits\ApiWishlist\Api\WishlistManagerInterface" method="getWishlistItems" />
 		<resources>
 			<resource ref="self"/>
 		</resources>

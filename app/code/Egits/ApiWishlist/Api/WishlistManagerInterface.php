@@ -9,7 +9,7 @@ interface WishlistManagerInterface
      * Undocumented function
      *
      * @param int $customerId
-     * @return int
+     * @return array
      */
-    public function getToken($customerId);
+    public function getWishlistItems($customerId);
 }
