@@ -136,6 +136,18 @@ class WishlistManagerRepository implements WishlistManagerInterface
     }
 
     /**
+     * Delete all wishlist items from the wishlist
+     *
+     * @param int $customerId
+     * @param int $productId
+     * @return int|null
+     */
+    public function deleteAllProductsFromWishlist($customerId, $productId)
+    {
+        return "deleting all products from wishlist";
+    }
+
+    /**
      * Get the wishlist data from customer id
      *
      * @param int $customerId

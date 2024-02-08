@@ -30,4 +30,13 @@ interface WishlistManagerInterface
      * @return int|null
      */
     public function deleteSingleProductFromWishlist($customerId, $productId);
+
+    /**
+     * Delete all products from wishlist
+     *
+     * @param int $customerId
+     * @param int $productId
+     * @return int|null
+     */
+    public function deleteAllProductsFromWishlist($customerId, $productId);
 }

@@ -22,4 +22,11 @@
 		</resources>
 		<data><parameter name="customerId" force="true">%customer_id%</parameter></data>
 	</route>
+	<route url="/V1/customer/deleteAllProducts" method="POST">
+		<service class="Egits\ApiWishlist\Api\WishlistManagerInterface" method="deleteAllProductsFromWishlist" />
+		<resources>
+			<resource ref="self" />
+		</resources>
+		<data><parameter name="customerId" force="true">%customer_id%</parameter></data>
+	</route>
 </routes>
