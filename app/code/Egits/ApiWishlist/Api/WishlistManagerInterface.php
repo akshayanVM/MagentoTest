@@ -21,4 +21,13 @@ interface WishlistManagerInterface
      * @return int|null
      */
     public function addProductToWishlist($customerId, $productId);
+
+    /**
+     * Remove a product from wishlist
+     *
+     * @param int $customerId
+     * @param mixed $productId
+     * @return int|null
+     */
+    public function deleteSingleProductFromWishlist($customerId, $productId);
 }

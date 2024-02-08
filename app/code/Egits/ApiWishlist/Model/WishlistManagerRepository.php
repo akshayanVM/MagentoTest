@@ -4,6 +4,7 @@ namespace Egits\ApiWishlist\Model;
 
 use Egits\ApiWishlist\Api\WishlistManagerInterface;
 use Magento\Wishlist\Model\Wishlist as WishlistFactory;
+use Magento\Wishlist\Model\ResourceModel\Item\CollectionFactory as WishlistItemCollectionFactory;
 use Magento\Wishlist\Model\ResourceModel\Wishlist as WishlistResource;
 use Magento\Catalog\Model\ProductRepository;
 
@@ -20,24 +21,33 @@ class WishlistManagerRepository implements WishlistManagerInterface
      * @var ProductRepository
      */
     private $productRepository;
+
     /**
      * @var WishlistResource
      */
     private $wishlistResource;
 
     /**
+     * @var WishlistItemCollectionFactory
+     */
+    private $wishlistItemFactory;
+
+    /**
      * @param WishlistFactory $wishlist
      * @param ProductRepository $productRepository
      * @param WishlistResource $wishlistResource
+     * @param WishlistItemFactory $wishlistItemFactory
      */
     public function __construct(
         ProductRepository $productRepository,
         WishlistResource $wishlistResource,
+        WishlistItemCollectionFactory $wishlistItemFactory,
         WishlistFactory $wishlist
     ) {
         $this->wishlist = $wishlist;
         $this->productRepository = $productRepository;
         $this->wishlistResource = $wishlistResource;
+        $this->wishlistItemFactory = $wishlistItemFactory;
     }
 
     /**
@@ -73,8 +83,6 @@ class WishlistManagerRepository implements WishlistManagerInterface
         $productId = (int)$productId;
         $customerWishlist = $this->getWishlistFromCustomerId($customerId);
 
-
-
         try {
             $product = $this->productRepository->getById($productId);
             $wishlistProduct = $customerWishlist->addNewItem($product);
@@ -96,9 +104,35 @@ class WishlistManagerRepository implements WishlistManagerInterface
             // Handle exception, e.g., if the product ID is invalid
             return null;
         }
-        // $wishlistProduct = $customerWishlist->addNewItem($productId);
-        // $customerWishlist->save();
-        // return $wishlistProduct->getId();
+    }
+
+    /**
+     * Delete a single product from the wishlist
+     *
+     * @param int $productId
+     * @param mixed $customerId
+     * @return int|null
+     * @throws \NoSuchEntityException
+     */
+    public function deleteSingleProductFromWishlist($customerId, $productId)
+    {
+        $productId = (int)$productId;
+        $customerWishlist = $this->getWishlistFromCustomerId($customerId);
+        $product = $this->productRepository->getById($productId);
+
+        // Check if the product is in the wishlist
+        $wishlistItems = $customerWishlist->getItemCollection();
+        $productName = $product->getName();
+
+        foreach ($wishlistItems as $wishlistItem) {
+            if ($wishlistItem->getProductId() == $productId) {
+                // Product found in the wishlist, remove it
+                // $customerWishlist->removeItem($wishlistItem->getId());
+                $wishlistItem->delete();
+                return $productName . " has been deleted from the wishlist.";
+            }
+        }
+        return "Product not found in the wishlist.";
     }
 
     /**

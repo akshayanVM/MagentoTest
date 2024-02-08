@@ -5,11 +5,7 @@
 		<resources>
 			<resource ref="self" />
 		</resources>
-		<data>
-			<parameter name="customerId" force="true">
-				%customer_id%
-			</parameter>
-		</data>
+		<data><parameter name="customerId" force="true">%customer_id%</parameter></data>
 	</route>
 	<route url="/V1/customer/addProduct" method="POST">
 		<service class="Egits\ApiWishlist\Api\WishlistManagerInterface" method="addProductToWishlist" />
@@ -18,5 +14,12 @@
 		</resources>
 		<data><parameter name="customerId" force="true">%customer_id%</parameter>
 		</data>
+	</route>
+	<route url="/V1/customer/deleteProduct" method="POST">
+		<service class="Egits\ApiWishlist\Api\WishlistManagerInterface" method="deleteSingleProductFromWishlist" />
+		<resources>
+			<resource ref="self" />
+		</resources>
+		<data><parameter name="customerId" force="true">%customer_id%</parameter></data>
 	</route>
 </routes>
