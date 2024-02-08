@@ -188,4 +188,15 @@ class WishlistManagerRepository implements WishlistManagerInterface
     {
         return $this->wishlist->loadByCustomerId($customerId, true); // If signed in
     }
+
+    /**
+     * Update the quantity of an existing wishlist item
+     *
+     * @param array $wishlistData
+     * @param int $customerId
+     * @return int|string|null
+     */
+    public function setWishlistItemQuantity(array $wishlistData, $customerId){
+        return "testing item quantity update request";
+    }
 }
