@@ -3,10 +3,12 @@
 namespace Egits\ApiWishlist\Model;
 
 use Egits\ApiWishlist\Api\WishlistManagerInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Wishlist\Model\Wishlist as WishlistFactory;
 use Magento\Wishlist\Model\ResourceModel\Item\CollectionFactory as WishlistItemCollectionFactory;
 use Magento\Wishlist\Model\ResourceModel\Wishlist as WishlistResource;
 use Magento\Catalog\Model\ProductRepository;
+use Magento\Wishlist\Model\Wishlist\Data\WishlistItemFactory;
 
 
 class WishlistManagerRepository implements WishlistManagerInterface
@@ -33,10 +35,10 @@ class WishlistManagerRepository implements WishlistManagerInterface
     private $wishlistItemFactory;
 
     /**
-     * @param WishlistFactory $wishlist
      * @param ProductRepository $productRepository
      * @param WishlistResource $wishlistResource
-     * @param WishlistItemFactory $wishlistItemFactory
+     * @param WishlistItemCollectionFactory $wishlistItemFactory
+     * @param WishlistFactory $wishlist
      */
     public function __construct(
         ProductRepository $productRepository,
@@ -54,7 +56,8 @@ class WishlistManagerRepository implements WishlistManagerInterface
      * Get wishlist items list by customer ID.
      *
      * @param int $customerId
-     * @return array
+     * @return string|array
+     * @throws NoSuchEntityException
      */
     public function getWishlistItems($customerId)
     {
@@ -67,6 +70,11 @@ class WishlistManagerRepository implements WishlistManagerInterface
         // Initialize an array to store wishlist item data
         $wishlistData = [];
 
+        // Check if the wishlist is empty
+        if (empty($wishlistItems)) {
+            return "Wishlist is empty for the customer.";
+        }
+
         return $wishlistItems;
     }
 
@@ -76,7 +84,6 @@ class WishlistManagerRepository implements WishlistManagerInterface
      * @param int $customerId
      * @param mixed $productId
      * @return int|null
-     * @throws NoSuchEntityException
      */
     public function addProductToWishlist($customerId, $productId)
     {
@@ -85,21 +92,24 @@ class WishlistManagerRepository implements WishlistManagerInterface
 
         try {
             $product = $this->productRepository->getById($productId);
-            $wishlistProduct = $customerWishlist->addNewItem($product);
-            $productName = $product->getName();
 
+            // Check if the product is already in the wishlist
             $wishlistItems = $customerWishlist->getItemCollection();
             foreach ($wishlistItems as $wishlistItem) {
                 if ($wishlistItem->getProductId() == $productId) {
-                    return  $productName . " already in your wishlist";
+                    $productName = $product->getName();
+                    return  $productName . " is already in your wishlist";
                 }
             }
 
-            // Save the wishlist
-            // $customerWishlist->save();
+            // Product not found in the wishlist, proceed to add it
+            $wishlistProduct = $customerWishlist->addNewItem($product);
+            $productName = $product->getName();
+
+            // Save the updated wishlist
             $this->wishlistResource->save($customerWishlist);
 
-            return $productName . " has been added to wishlist";
+            return $productName . " has been added to the wishlist";
         } catch (\Exception $e) {
             // Handle exception, e.g., if the product ID is invalid
             return null;
@@ -112,7 +122,7 @@ class WishlistManagerRepository implements WishlistManagerInterface
      * @param int $productId
      * @param mixed $customerId
      * @return int|null
-     * @throws \NoSuchEntityException
+     * @throws NoSuchEntityException
      */
     public function deleteSingleProductFromWishlist($customerId, $productId)
     {
@@ -140,18 +150,39 @@ class WishlistManagerRepository implements WishlistManagerInterface
      *
      * @param int $customerId
      * @param int $productId
-     * @return int|null
+     * @return string
+     * @throws NoSuchEntityException
      */
     public function deleteAllProductsFromWishlist($customerId, $productId)
     {
-        return "deleting all products from wishlist";
+        try {
+            $customerWishlist = $this->getWishlistFromCustomerId($customerId);
+            $wishlistItems = $customerWishlist->getItemCollection();
+
+            if ($wishlistItems->getSize() > 0) {
+                // Delete all items from the wishlist
+                foreach ($wishlistItems as $wishlistItem) {
+                    $wishlistItem->delete();
+                }
+
+                // Save the updated wishlist
+                $this->wishlistResource->save($customerWishlist);
+
+                return "All items deleted from the wishlist.";
+            } else {
+                return "Wishlist is already empty.";
+            }
+        } catch (\Exception $e) {
+            // Log the exception or handle it based on your requirements
+            throw new \Magento\Framework\Exception\NoSuchEntityException(__('Wishlist not found for customer.'));
+        }
     }
 
     /**
      * Get the wishlist data from customer id
      *
      * @param int $customerId
-     * @return \Magento\Wishlist\Model\Wishlist
+     * @return WishlistFactory
      */
     public function getWishlistFromCustomerId($customerId)
     {
