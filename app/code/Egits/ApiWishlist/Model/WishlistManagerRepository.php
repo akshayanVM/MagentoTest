@@ -179,6 +179,47 @@ class WishlistManagerRepository implements WishlistManagerInterface
     }
 
     /**
+     * Update the quantity of an existing wishlist item
+     *
+     * @param array $wishlistData
+     * @param int $customerId
+     * @return int|string|null
+     */
+    public function setWishlistItemQuantity(array $wishlistData, $customerId)
+    {
+        try {
+            if (isset($wishlistData['product_id'], $wishlistData['qty'])) {
+                $productId = (int)$wishlistData['product_id'];
+                $quantity = (int)$wishlistData['qty'];
+
+                // Load the customer's wishlist
+                $customerWishlist = $this->getWishlistFromCustomerId($customerId);
+
+                // Check if the product is in the wishlist
+                $wishlistItem = $customerWishlist->getItemCollection()
+                    ->addFieldToFilter('main_table.product_id', $productId) // Specify the table alias for product_id
+                    ->setPageSize(1)
+                    ->getFirstItem();
+
+                if ($wishlistItem->getId()) {
+                    // Update the quantity if the item exists
+                    $wishlistItem->setQty($quantity);
+                    $this->wishlistResource->save($customerWishlist);
+
+                    return "Quantity updated for product with ID $productId to $quantity";
+                } else {
+                    return "Product with ID $productId not found in the wishlist.";
+                }
+            } else {
+                return "Invalid data structure. Please provide 'wishlistData' with 'product_id' and 'qty'.";
+            }
+        } catch (\Exception $e) {
+            // Handle exceptions if necessary
+            return "Error updating wishlist item quantity: " . $e->getMessage();
+        }
+    }
+
+    /**
      * Get the wishlist data from customer id
      *
      * @param int $customerId
@@ -187,16 +228,5 @@ class WishlistManagerRepository implements WishlistManagerInterface
     public function getWishlistFromCustomerId($customerId)
     {
         return $this->wishlist->loadByCustomerId($customerId, true); // If signed in
-    }
-
-    /**
-     * Update the quantity of an existing wishlist item
-     *
-     * @param array $wishlistData
-     * @param int $customerId
-     * @return int|string|null
-     */
-    public function setWishlistItemQuantity(array $wishlistData, $customerId){
-        return "testing item quantity update request";
     }
 }
