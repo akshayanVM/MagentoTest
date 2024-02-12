@@ -2,7 +2,6 @@
 
 namespace Egits\ApiWishlist\Api;
 
-
 interface WishlistManagerInterface
 {
     /**

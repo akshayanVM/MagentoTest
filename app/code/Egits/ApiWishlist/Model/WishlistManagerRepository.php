@@ -9,7 +9,7 @@ use Magento\Wishlist\Model\ResourceModel\Item\CollectionFactory as WishlistItemC
 use Magento\Wishlist\Model\ResourceModel\Wishlist as WishlistResource;
 use Magento\Catalog\Model\ProductRepository;
 use Magento\Wishlist\Model\Wishlist\Data\WishlistItemFactory;
-
+use Magento\Framework\Message\ManagerInterface;
 
 class WishlistManagerRepository implements WishlistManagerInterface
 {
@@ -18,6 +18,11 @@ class WishlistManagerRepository implements WishlistManagerInterface
      * @var WishlistFactory
      */
     private $wishlist;
+
+    /**
+     * @var ManagerInterface
+     */
+    private $messageManager;
 
     /**
      * @var ProductRepository
@@ -36,17 +41,20 @@ class WishlistManagerRepository implements WishlistManagerInterface
 
     /**
      * @param ProductRepository $productRepository
+     * @param ManagerInterface $messageManager
      * @param WishlistResource $wishlistResource
      * @param WishlistItemCollectionFactory $wishlistItemFactory
      * @param WishlistFactory $wishlist
      */
     public function __construct(
         ProductRepository $productRepository,
+        ManagerInterface $messageManager,
         WishlistResource $wishlistResource,
         WishlistItemCollectionFactory $wishlistItemFactory,
         WishlistFactory $wishlist
     ) {
         $this->wishlist = $wishlist;
+        $this->messageManager = $messageManager;
         $this->productRepository = $productRepository;
         $this->wishlistResource = $wishlistResource;
         $this->wishlistItemFactory = $wishlistItemFactory;
@@ -119,8 +127,8 @@ class WishlistManagerRepository implements WishlistManagerInterface
     /**
      * Delete a single product from the wishlist
      *
-     * @param int $productId
      * @param mixed $customerId
+     * @param int $productId
      * @return int|null
      * @throws NoSuchEntityException
      */
@@ -197,6 +205,7 @@ class WishlistManagerRepository implements WishlistManagerInterface
 
                 // Check if the product is in the wishlist
                 $wishlistItem = $customerWishlist->getItemCollection()
+                    // main_table is an alias for wishlist_item table ( whiich is the main table )
                     ->addFieldToFilter('main_table.product_id', $productId) // Specify the table alias for product_id
                     ->setPageSize(1)
                     ->getFirstItem();
@@ -205,6 +214,10 @@ class WishlistManagerRepository implements WishlistManagerInterface
                     // Update the quantity if the item exists
                     $wishlistItem->setQty($quantity);
                     $this->wishlistResource->save($customerWishlist);
+
+                    // Display success message
+                    $this->messageManager
+                        ->addSuccessMessage("Quantity updated for product with ID $productId to $quantity");
 
                     return "Quantity updated for product with ID $productId to $quantity";
                 } else {
